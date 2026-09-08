@@ -48,6 +48,25 @@ Semana del 2026-09-07 al 2026-09-13
 **Opción 2** pregunta cuál materia y da el detalle de esa sola: finalizadas, programadas sin cerrar,
 canceladas, sin cupo, participación en el total de la semana y qué tutores la dictaron.
 
+## Prueba exitosa en Telegram
+
+Capturas de una ejecución real, con el workflow activo y la hoja conectada.
+
+**Menú de coordinación y opción 1 · Resumen semanal por materia**
+
+![Menu de coordinacion y resumen semanal por materia](capturas/coordinacion_01_resumen_semanal.jpeg)
+
+El coordinador entra al panel, elige `1` y recibe el resumen agrupado con el total de la semana.
+Al final vuelve el menú, listo para otra consulta.
+
+**Opción 2 · Consultar una materia**
+
+![Seleccion de materia y detalle](capturas/coordinacion_02_detalle_materia.jpeg)
+
+Elige `2`, el bot lista las materias con actividad y su conteo, y al escoger una entrega el detalle:
+finalizadas, programadas sin cerrar, canceladas, sin cupo, participación en la semana y qué tutores
+la dictaron.
+
 ## Los cuatro requisitos, y dónde se cumplen
 
 | Requisito | Implementación |
@@ -91,6 +110,7 @@ nodo Code recibiría filas de `TUTORIAS` en vez del contexto que mandó el padre
 | `code/60_coordinacion.js` | Toda la lógica: autorización, cálculo de la semana, agrupación y formato |
 | `code/01_contexto.js` | Detecta el rol de coordinación y enruta |
 | `data/TutorBot_DB.xlsx` | Base de datos con la hoja `COORDINACION` y datos de prueba |
+| `capturas/` | Evidencia de la prueba en Telegram |
 
 ## Puesta en marcha
 
