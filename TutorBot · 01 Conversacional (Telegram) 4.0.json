@@ -1,0 +1,1214 @@
+{
+  "name": "TutorBot · 01 Conversacional (Telegram) 4.0",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -1040,
+        1568
+      ],
+      "id": "c7f07a8d-a238-4769-abea-567d1a6fb34a",
+      "name": "Telegram Trigger",
+      "webhookId": "c82390d8-7e32-48ca-a0ee-ae97c9e8e4f7",
+      "credentials": {
+        "telegramApi": {
+          "id": "VpJJqUBnu5dh5Mvb",
+          "name": "Telegram account"
+        }
+      },
+      "notes": "Cada mensaje del usuario es una ejecucion independiente: el estado vive en la hoja SESSIONS."
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b2194ba9-062b-4ebc-bd49-5ba75a19195d",
+              "name": "SHEET_ID",
+              "value": "1y9sb5vTPnlqSutlKYer2osLtm_Fr-SLt10xZxNm_jpg",
+              "type": "string"
+            },
+            {
+              "id": "4de7a126-0ca8-475b-8f8f-48328a289edc",
+              "name": "TIMEZONE",
+              "value": "America/Bogota",
+              "type": "string"
+            },
+            {
+              "id": "1ddccb2e-a49f-48c0-b680-7d501b4c0f57",
+              "name": "DURACION_MIN",
+              "value": 60,
+              "type": "number"
+            },
+            {
+              "id": "1cb21c54-7d4a-41f3-ad20-c99106cd3580",
+              "name": "MAX_OPCIONES",
+              "value": 3,
+              "type": "number"
+            },
+            {
+              "id": "cb33e074-ad08-4a6a-85a5-12f0a74d747e",
+              "name": "DIAS_MAX_ANTICIPACION",
+              "value": 30,
+              "type": "number"
+            },
+            {
+              "id": "fb1fe74a-6bd9-485c-9a66-453b7b6f9d36",
+              "name": "HORAS_MIN_CANCELACION",
+              "value": 6,
+              "type": "number"
+            },
+            {
+              "id": "1934fbaa-d8a9-4ef5-8e26-aff7d999487f",
+              "name": "HORAS_RECORDATORIO",
+              "value": 24,
+              "type": "number"
+            },
+            {
+              "id": "ef0df35d-df54-4666-ad7b-ae1a50f5ac50",
+              "name": "TTL_SESION_MIN",
+              "value": 120,
+              "type": "number"
+            },
+            {
+              "id": "66be3bad-6e06-4047-9201-4ae415be699d",
+              "name": "MODO_IA",
+              "value": "on",
+              "type": "string"
+            },
+            {
+              "id": "55de3dd8-fdb7-41c1-bafe-c9753d54b5ad",
+              "name": "IA_MODELO",
+              "value": "models/gemini-2.5-flash-lite",
+              "type": "string"
+            },
+            {
+              "id": "f00800aa-5c9e-44e9-be78-3903ec0cbb5b",
+              "name": "IA_CONFIANZA_MIN",
+              "value": 0.6,
+              "type": "number"
+            },
+            {
+              "id": "a10ef00a-6e16-4290-8a1e-3f76ce6c9a96",
+              "name": "IA_CONFIANZA_PISO",
+              "value": 0.35,
+              "type": "number"
+            },
+            {
+              "id": "88780f5c-0137-48bc-92c1-85d1da964a7e",
+              "name": "ahora_iso",
+              "value": "={{ $now.setZone('America/Bogota').toISO() }}",
+              "type": "string"
+            },
+            {
+              "id": "b52fca22-3670-460f-9c3f-697b2641e3ad",
+              "name": "hoy",
+              "value": "={{ $now.setZone('America/Bogota').toFormat('yyyy-MM-dd') }}",
+              "type": "string"
+            },
+            {
+              "id": "e5684a0c-0cc4-42d8-beb8-6e6162fcba8f",
+              "name": "hora_actual",
+              "value": "={{ $now.setZone('America/Bogota').toFormat('HH:mm') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -816,
+        1568
+      ],
+      "id": "f92f0a32-7700-4789-9d02-389ceeaa5c5a",
+      "name": "Config",
+      "notes": "Unico lugar donde se cambian el ID del Sheet, la zona horaria y las reglas de negocio parametrizables."
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('Config').first().json.SHEET_ID }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "SESSIONS",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -592,
+        1568
+      ],
+      "id": "6f448b60-081b-464b-9374-055fed26b051",
+      "name": "Leer SESSIONS",
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "jB7hAVkXkjvZ5Tbj",
+          "name": "Google Sheets account"
+        }
+      },
+      "notes": "Lee toda la hoja SESSIONS. alwaysOutputData evita que una hoja vacia detenga el flujo."
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('Config').first().json.SHEET_ID }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "ESTUDIANTES",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -400,
+        1568
+      ],
+      "id": "3e4de990-ddb1-407e-b3bc-d8d5fe85f0a7",
+      "name": "Leer ESTUDIANTES",
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "jB7hAVkXkjvZ5Tbj",
+          "name": "Google Sheets account"
+        }
+      },
+      "notes": "Lee toda la hoja ESTUDIANTES. alwaysOutputData evita que una hoja vacia detenga el flujo."
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('Config').first().json.SHEET_ID }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "COORDINACION",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -192,
+        1568
+      ],
+      "id": "bf169a25-3c06-4158-bf33-0b2a4f2efc79",
+      "name": "Leer COORDINACION",
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "jB7hAVkXkjvZ5Tbj",
+          "name": "Google Sheets account"
+        }
+      },
+      "notes": "Lee toda la hoja COORDINACION. alwaysOutputData evita que una hoja vacia detenga el flujo."
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('Config').first().json.SHEET_ID }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "TUTORES",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        16,
+        1568
+      ],
+      "id": "fe307fa4-8ff7-420a-ace8-6b929844b86a",
+      "name": "Leer TUTORES",
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "jB7hAVkXkjvZ5Tbj",
+          "name": "Google Sheets account"
+        }
+      },
+      "notes": "Lee toda la hoja TUTORES. alwaysOutputData evita que una hoja vacia detenga el flujo."
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('Config').first().json.SHEET_ID }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "DISPONIBILIDAD",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        208,
+        1568
+      ],
+      "id": "48976a2e-0840-461d-bcde-cb53328e9086",
+      "name": "Leer DISPONIBILIDAD",
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "jB7hAVkXkjvZ5Tbj",
+          "name": "Google Sheets account"
+        }
+      },
+      "notes": "Lee toda la hoja DISPONIBILIDAD. alwaysOutputData evita que una hoja vacia detenga el flujo."
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('Config').first().json.SHEET_ID }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "TUTORIAS",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        416,
+        1568
+      ],
+      "id": "7026ee28-5da6-4cbb-9481-eaad36f461fe",
+      "name": "Leer TUTORIAS",
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "jB7hAVkXkjvZ5Tbj",
+          "name": "Google Sheets account"
+        }
+      },
+      "notes": "Lee toda la hoja TUTORIAS. alwaysOutputData evita que una hoja vacia detenga el flujo."
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================================\n// TutorBot · Resolver contexto y ruta\n// Responsabilidad: convertir un mensaje suelto de Telegram en un\n// CONTEXTO completo (quien escribe, en que paso del wizard va y que\n// modulo debe atenderlo). No escribe datos ni envia mensajes.\n// ============================================================\nconst cfg = $('Config').first().json;\nconst upd = $('Telegram Trigger').first().json;\nconst msg = upd.message || upd.edited_message || {};\nconst from = msg.from || {};\n\nconst telegram_user = String(from.id || '');\nconst chat_id = String((msg.chat && msg.chat.id) || from.id || '');\nconst nombre_telegram = [from.first_name, from.last_name].filter(Boolean).join(' ');\nconst texto = typeof msg.text === 'string' ? msg.text.trim() : '';\n\nconst esComando = texto.startsWith('/');\nconst partes = texto.split(/\\s+/);\nconst comando = esComando ? partes[0].toLowerCase().replace(/@.*$/, '') : '';\nconst argumento = esComando ? partes.slice(1).join(' ').trim() : '';\n\n// Lectura defensiva de hojas: si una hoja esta vacia el flujo no debe romperse\nfunction filas(nodo) {\n  try {\n    return $(nodo).all().map(i => i.json).filter(r => r && Object.keys(r).length > 0);\n  } catch (e) {\n    return [];\n  }\n}\n\nconst sessions    = filas('Leer SESSIONS').filter(r => String(r.telegram_user || '') !== '');\nconst estudiantes = filas('Leer ESTUDIANTES').filter(r => String(r.id_estudiante || '') !== '');\nconst tutores     = filas('Leer TUTORES').filter(r => String(r.id_tutor || '') !== '');\n\nconst sesionGuardada = sessions.find(s => String(s.telegram_user) === telegram_user) || null;\n// Se busca por telegram_user: una vez vinculado, no hay que volver a pedir el codigo.\nconst estudiante     = estudiantes.find(e => String(e.telegram_user || '') === telegram_user) || null;\n// Un tutor se identifica por su telegram_chat_id (campo agregado al modelo, ver docs/02_analisis.md)\nconst tutor          = tutores.find(t => String(t.telegram_chat_id || '') === telegram_user) || null;\n\n// ---- Estado recuperado de la hoja SESSIONS (persistencia del wizard) ----\nlet pantalla = sesionGuardada ? String(sesionGuardada.pantalla_actual || 'MENU') : 'INICIO';\nlet paso     = sesionGuardada ? String(sesionGuardada.paso_actual || '0') : '0';\nlet datos    = {};\nif (sesionGuardada && sesionGuardada.datos_parciales) {\n  try { datos = JSON.parse(sesionGuardada.datos_parciales) || {}; } catch (e) { datos = {}; }\n}\n\n// ---- TTL: una sesion abandonada no debe \"revivir\" dias despues ----\nconst TTL_MIN = Number(cfg.TTL_SESION_MIN || 120);\nlet sesionExpirada = false;\nif (sesionGuardada && sesionGuardada.actualizado_en && pantalla !== 'MENU' && pantalla !== 'INICIO') {\n  const t = Date.parse(sesionGuardada.actualizado_en);\n  const ahora = Date.parse(cfg.ahora_iso);\n  if (!isNaN(t) && !isNaN(ahora) && (ahora - t) / 60000 > TTL_MIN) {\n    sesionExpirada = true;\n    pantalla = 'MENU'; paso = '0'; datos = {};\n  }\n}\n\n// ---- Rol de coordinacion ----\n// Sale de la hoja COORDINACION, no de una constante en el workflow: agregar o\n// quitar un coordinador es editar una fila, sin tocar n8n.\n// Va antes que cualquier otra comprobacion porque el coordinador no esta en\n// ESTUDIANTES: si se evaluara despues, el bot le pediria un codigo de estudiante.\nconst coordinadores = filas('Leer COORDINACION').filter(c => String(c.telegram_user || '').trim() !== '');\nconst coordinador = coordinadores.find(c =>\n  String(c.telegram_user).replace(/[^0-9]/g, '') === telegram_user &&\n  String(c.estado || 'Activo').toLowerCase() === 'activo') || null;\nconst esCoordinacion = !!coordinador;\n\n// ---- Router: comandos globales primero, luego la pantalla del wizard ----\nlet ruta = 'MENU';\nlet submodo = 'menu';\nlet reiniciar = false;\n\nif (!texto) {\n  // Foto, sticker, audio, ubicacion: entrada no soportada\n  ruta = 'MENU'; submodo = 'no_soportado';\n} else if (comando === '/start') {\n  reiniciar = true;\n  // Sin estudiante vinculado a este Telegram, lo primero es pedir el codigo.\n  ruta = estudiante ? 'MENU' : 'REGISTRO';\n  submodo = estudiante ? 'bienvenida' : 'inicio';\n} else if (comando === '/menu') {\n  reiniciar = true; ruta = 'MENU'; submodo = 'menu';\n} else if (comando === '/cancelar') {\n  reiniciar = true; ruta = 'MENU'; submodo = 'wizard_abortado';\n} else if (comando === '/ayuda' || comando === '/help') {\n  ruta = 'MENU'; submodo = 'ayuda';\n} else if (comando === '/confirmar' || comando === '/finalizar' || comando === '/mis') {\n  ruta = 'TUTOR'; submodo = comando.replace('/', '');\n} else if (esCoordinacion && (comando === '/coordinacion' || comando === '/reportes')) {\n  reiniciar = true; ruta = 'COORDINACION'; submodo = 'menu';\n} else if (esComando) {\n  ruta = 'MENU'; submodo = 'comando_desconocido';\n} else if (esCoordinacion) {\n  // El coordinador tiene su propio menu. Sus pantallas empiezan por COORD_.\n  ruta = 'COORDINACION';\n  if (pantalla === 'COORD_MATERIA')   submodo = 'materia';\n  else if (pantalla === 'COORD_MENU') submodo = 'elegir';\n  else                                submodo = 'menu';\n} else if (!estudiante) {\n  // Tres pantallas posibles antes de estar identificado.\n  ruta = 'REGISTRO';\n  if (pantalla === 'REGISTRO_NOMBRE')      submodo = 'guardar_nombre';\n  else if (pantalla === 'IDENTIFICACION')  submodo = 'identificar';\n  else                                     submodo = 'inicio';\n} else if (pantalla === 'INICIO' || pantalla === 'MENU' || pantalla === 'TUTOR') {\n  // Solo un numero suelto cuenta como opcion del menu (\"2\", \"2)\", \"2.\"). Cualquier\n  // otro texto se manda al interprete de IA en vez de adivinar por los digitos sueltos.\n  const m = /^\\s*([1-9])\\s*[).\\-]?\\s*$/.exec(texto);\n  const opcion = m ? m[1] : '';\n  if (opcion === '1')      { ruta = 'SOLICITAR'; submodo = 'iniciar'; }\n  else if (opcion === '2') { ruta = 'CONSULTAR'; submodo = 'listar'; }\n  else if (opcion === '3') { ruta = 'CANCELAR';  submodo = 'listar'; }\n  else if (opcion === '4') { ruta = 'MENU';      submodo = 'ayuda'; }\n  else                     { ruta = 'MENU';      submodo = 'no_reconocido'; }\n} else if (pantalla === 'SOL_MATERIA') {\n  ruta = 'SOLICITAR'; submodo = 'materia';\n} else if (pantalla === 'SOL_FECHA') {\n  ruta = 'SOLICITAR'; submodo = 'fecha';\n} else if (pantalla === 'SOL_CONFIRMA') {\n  ruta = 'CONFIRMAR'; submodo = 'confirmar';\n} else if (pantalla === 'CAN_SELECCION') {\n  ruta = 'CANCELAR'; submodo = 'ejecutar';\n} else {\n  // Pantalla desconocida en la hoja: se reinicia el wizard en lugar de fallar\n  reiniciar = true; ruta = 'MENU'; submodo = 'no_reconocido';\n}\n\nreturn [{\n  json: {\n    telegram_user, chat_id, nombre_telegram,\n    texto, comando, argumento,\n    ruta, submodo, reiniciar, sesion_expirada: sesionExpirada,\n    pantalla_previa: pantalla, paso_previo: paso, datos,\n    es_estudiante: !!estudiante,\n    id_estudiante: estudiante ? String(estudiante.id_estudiante) : '',\n    nombre_estudiante: estudiante ? String(estudiante.nombre) : '',\n    es_tutor: !!tutor,\n    es_coordinacion: esCoordinacion,\n    nombre_coordinador: coordinador ? String(coordinador.nombre || '') : '',\n    id_tutor_emisor: tutor ? String(tutor.id_tutor) : '',\n    nombre_tutor_emisor: tutor ? String(tutor.nombre) : '',\n    ahora_iso: cfg.ahora_iso, hoy: cfg.hoy, hora_actual: cfg.hora_actual\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        688,
+        1568
+      ],
+      "id": "0bb4770d-6112-4a75-a2a6-517831e1129a",
+      "name": "Resolver contexto y ruta",
+      "notesInFlow": false,
+      "notes": "FSM: recupera pantalla_actual/paso_actual de SESSIONS y decide que modulo atiende el mensaje."
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================================\n// TutorBot · Preparar consulta a la IA\n// Responsabilidad: decidir SI vale la pena preguntarle al modelo y, en ese\n// caso, construir un prompt cerrado (catalogo real + fechas reales).\n// No decide nada del negocio: solo prepara texto.\n//\n// Reglas de contencion (ver docs/06):\n//  IA-01 la IA solo se usa cuando el texto libre no encaja en el menu numerico\n//  IA-02 nunca se usa en SOL_CONFIRMA: confirmar una reserva exige un numero\n//  IA-03 el modelo elige de listas que le damos; no genera datos nuevos\n//  IA-04 si MODO_IA esta en off, el sistema funciona igual con menus\n// ============================================================\nconst ctx = $input.first().json;\nconst cfg = $('Config').first().json;\n\nconst MODO_IA   = String(cfg.MODO_IA || 'on').toLowerCase() === 'on';\nconst HORIZONTE = Number(cfg.DIAS_MAX_ANTICIPACION || 30);\nconst DIAS = ['Domingo', 'Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado'];\n\nfunction filas(nodo) {\n  try { return $(nodo).all().map(i => i.json).filter(r => r && Object.keys(r).length > 0); }\n  catch (e) { return []; }\n}\nconst norm = s => String(s == null ? '' : s).normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').toLowerCase().trim();\n\n// El catalogo es el MISMO que ve el wizard numerico: una sola fuente de verdad\nconst tutores = filas('Leer TUTORES').filter(t => String(t.id_tutor || '') !== '');\nconst materiasDe = t => String(t.especialidad_materias || '').split(/[;,|]/).map(s => s.trim()).filter(Boolean);\nconst catalogo = Array.from(new Map(\n  tutores.filter(t => norm(t.estado) === 'activo').flatMap(materiasDe).map(m => [norm(m), m])\n).values()).sort((a, b) => a.localeCompare(b, 'es'));\n\n// ---- Fechas de referencia: el modelo ESCOGE de esta lista, no calcula ----\nconst partesHoy = String(cfg.hoy).split('-').map(Number);\nconst baseUTC = Date.UTC(partesHoy[0], partesHoy[1] - 1, partesHoy[2]);\nconst referencia = [];\nfor (let i = 0; i <= 14; i++) {\n  const d = new Date(baseUTC + i * 86400000);\n  const iso = d.toISOString().slice(0, 10);\n  const etiqueta = i === 0 ? ' (hoy)' : (i === 1 ? ' (manana)' : '');\n  referencia.push(iso + ' = ' + DIAS[d.getUTCDay()] + etiqueta);\n}\n\n// ------------------------------------------------------------\n// ¿Se consulta al modelo?\n// ------------------------------------------------------------\nconst texto = String(ctx.texto || '').trim();\nconst esNumero = /^\\s*\\d{1,2}\\s*$/.test(texto);\nconst esFechaISO = /^\\d{4}-\\d{2}-\\d{2}$/.test(texto);\n\nlet usar = false;\nlet motivo = 'no_aplica';\n\nif (!MODO_IA) {\n  motivo = 'modo_ia_off';\n} else if (!catalogo.length) {\n  motivo = 'sin_catalogo';\n} else if (!texto || ctx.comando || texto.length < 3 || texto.length > 300) {\n  motivo = 'entrada_no_interpretable';\n} else if (!ctx.es_estudiante) {\n  motivo = 'usuario_no_registrado';   // primero se registra, con reglas\n} else if (ctx.pantalla_previa === 'SOL_CONFIRMA') {\n  motivo = 'confirmacion_exige_numero';  // IA-02: la reserva se confirma a mano\n} else if (ctx.ruta === 'MENU' && ctx.submodo === 'no_reconocido') {\n  usar = true; motivo = 'texto_libre_en_menu';\n} else if (ctx.pantalla_previa === 'SOL_MATERIA' && !esNumero) {\n  usar = true; motivo = 'materia_en_texto_libre';\n} else if (ctx.pantalla_previa === 'SOL_FECHA' && !esFechaISO) {\n  usar = true; motivo = 'fecha_en_texto_libre';\n}\n\n// ------------------------------------------------------------\n// Prompt: cerrado, con listas explicitas y prohibiciones explicitas\n// ------------------------------------------------------------\nconst prompt = [\n  'Eres el interprete de mensajes de TutorBot, un sistema de asesorias academicas.',\n  'Tu UNICA tarea es traducir el mensaje de un estudiante a parametros estructurados.',\n  'NO agendas, NO eliges tutor, NO eliges hora, NO consultas disponibilidad, NO confirmas nada.',\n  '',\n  'Responde EXCLUSIVAMENTE con un objeto JSON valido, sin texto adicional y sin bloques de codigo:',\n  '{\"intencion\":\"\",\"materia\":\"\",\"fecha\":\"\",\"confianza\":0}',\n  '',\n  'Campos:',\n  '- intencion: exactamente uno de solicitar | consultar | cancelar | ayuda | otro',\n  '- materia: copiada TAL CUAL de la lista de materias. Si el estudiante nombra algo que no esta en la lista, devuelve \"\".',\n  '- fecha: copiada TAL CUAL de la lista de fechas (formato AAAA-MM-DD). Si no puedes deducirla con certeza, devuelve \"\".',\n  '- confianza: decimal entre 0 y 1 (no porcentaje) que mide SOLO que tan seguro estas de la INTENCION.',\n  '',\n  'Sobre la confianza, leelo con cuidado:',\n  '- Mide unicamente la intencion, NO si pudiste llenar materia o fecha.',\n  '- Si entiendes claramente que quiere agendar, consultar o cancelar, la confianza es ALTA (0.9)',\n  '  aunque materia y fecha queden vacias. Eso es normal y esperado.',\n  '- Baja la confianza solo cuando de verdad no sabes que quiere el estudiante.',\n  '',\n  'Ejemplos:',\n  '  \"quiero solicitar una tutoria\"        -> {\"intencion\":\"solicitar\",\"materia\":\"\",\"fecha\":\"\",\"confianza\":0.95}',\n  '  \"necesito calculo el miercoles\"       -> {\"intencion\":\"solicitar\",\"materia\":\"<de la lista>\",\"fecha\":\"<de la lista>\",\"confianza\":0.9}',\n  '  \"que tengo agendado\"                  -> {\"intencion\":\"consultar\",\"materia\":\"\",\"fecha\":\"\",\"confianza\":0.95}',\n  '  \"hola\"                                -> {\"intencion\":\"otro\",\"materia\":\"\",\"fecha\":\"\",\"confianza\":0.2}',\n  '',\n  'Prohibido inventar materias, fechas, tutores, horarios o estados. Si un dato no esta, dejalo en \"\".',\n  '',\n  'MATERIAS DISPONIBLES:',\n  catalogo.map(m => '- ' + m).join('\\n'),\n  '',\n  'FECHAS DE REFERENCIA (hoy es ' + cfg.hoy + ', se aceptan hasta ' + HORIZONTE + ' dias adelante):',\n  referencia.join('\\n'),\n  '',\n  'MENSAJE DEL ESTUDIANTE:',\n  texto\n].join('\\n');\n\nreturn [{\n  json: Object.assign({}, ctx, {\n    ruta_ia: usar ? 'IA' : 'DIRECTO',\n    ia_motivo: motivo,\n    ia_catalogo: catalogo,\n    ia_horizonte: HORIZONTE,\n    prompt_ia: prompt\n  })\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        944,
+        1568
+      ],
+      "id": "4f515ec1-e2b3-4e3a-9446-41feb7c68ebf",
+      "name": "Preparar consulta IA",
+      "notesInFlow": false,
+      "notes": "Decide si vale la pena consultar al modelo y arma un prompt cerrado (catalogo y fechas reales)."
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "277f8e28-0ef9-4860-be2f-fe17e477741c",
+                    "leftValue": "={{ $json.ruta_ia }}",
+                    "rightValue": "IA",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "IA"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "DIRECTO"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        1152,
+        1568
+      ],
+      "id": "1e946334-c799-4b14-ab28-f35ce538adf7",
+      "name": "Ruta de interpretacion",
+      "notes": "Si el texto encaja en el menu numerico no se gasta cuota de Gemini: va directo al motor."
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.prompt_ia }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        1376,
+        1424
+      ],
+      "id": "a641f525-dd54-45e7-9162-1ef558b415a6",
+      "name": "Interpretar con Gemini",
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput",
+      "notes": "Traduce texto libre a {intencion, materia, fecha, confianza}. No decide nada del negocio."
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash-lite",
+        "options": {
+          "maxOutputTokens": 512,
+          "temperature": 0
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1376,
+        1664
+      ],
+      "id": "da2d3b27-9432-4580-aaf6-90e14181bd54",
+      "name": "Modelo Gemini (interprete)",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "tsawz23qXT7YMnez",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "notes": "Credencial: Google Gemini(PaLM) Api. Temperatura 0 = misma entrada, misma salida."
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================================\n// TutorBot · Validar interpretacion de la IA\n// Responsabilidad: tomar el texto que devolvio Gemini y convertirlo en un\n// contexto valido para el motor determinista. Todo lo que el modelo diga\n// pasa por aqui; nada de lo que diga llega crudo a los datos.\n//\n// Reglas de contencion (ver docs/06):\n//  IA-05 la materia debe existir EXACTAMENTE en el catalogo real\n//  IA-06 la fecha debe pasar las mismas validaciones que la escrita a mano (RN-07)\n//  IA-07 dos umbrales, porque enrutar y prellenar no tienen el mismo riesgo:\n//        - por debajo de IA_CONFIANZA_PISO se descarta todo\n//        - entre el piso y IA_CONFIANZA_MIN se conserva la INTENCION pero se\n//          sueltan materia y fecha, y el wizard las vuelve a pedir con sus menus\n//  IA-08 cualquier fallo (cuota, timeout, JSON invalido) degrada al menu numerico\n//  IA-09 la interpretacion se traduce a la MISMA entrada que habria escrito\n//        un humano, para que el motor no tenga un camino especial\n// ============================================================\nconst ctx = $('Preparar consulta IA').first().json;\nconst cfg = $('Config').first().json;\nconst entrada = $input.first().json || {};\n\nconst MIN_CONF = Number(cfg.IA_CONFIANZA_MIN || 0.6);     // para prellenar materia/fecha\nconst PISO_CONF = Number(cfg.IA_CONFIANZA_PISO || 0.35);  // para aceptar la intencion\nconst HORIZONTE = Number(ctx.ia_horizonte || cfg.DIAS_MAX_ANTICIPACION || 30);\nconst norm = s => String(s == null ? '' : s).normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').toLowerCase().trim();\n\n// ---- 1. Extraer el texto del modelo, sea cual sea la forma del item ----\nlet crudo = entrada.text;\nif (crudo == null) crudo = entrada.output;\nif (crudo == null) crudo = entrada.response;\nif (crudo == null) crudo = entrada.message;\nif (crudo && typeof crudo === 'object') crudo = JSON.stringify(crudo);\ncrudo = String(crudo == null ? '' : crudo);\n\n// ---- 2. Parseo defensivo: el modelo puede envolver el JSON en ``` o en prosa ----\nlet ia = null;\nlet fallo = '';\nif (!crudo.trim()) {\n  fallo = 'sin_respuesta';           // cuota agotada, timeout o credencial invalida\n} else {\n  const limpio = crudo.replace(/```[a-z]*/gi, '').trim();\n  const ini = limpio.indexOf('{');\n  const fin = limpio.lastIndexOf('}');\n  if (ini === -1 || fin <= ini) {\n    fallo = 'sin_json';\n  } else {\n    try { ia = JSON.parse(limpio.slice(ini, fin + 1)); }\n    catch (e) { fallo = 'json_invalido'; }\n  }\n}\nif (ia && typeof ia !== 'object') { ia = null; fallo = 'json_invalido'; }\n\n// ---- 3. Saneo campo por campo ----\nconst INTENCIONES = ['solicitar', 'consultar', 'cancelar', 'ayuda', 'otro'];\nlet intencion = 'otro';\nlet materia = '';\nlet fecha = '';\nlet confianza = 0;\n\nif (ia) {\n  const i = norm(ia.intencion);\n  intencion = INTENCIONES.includes(i) ? i : 'otro';\n\n  // IA-05: solo vale si coincide con una materia real del catalogo\n  const catalogo = Array.isArray(ctx.ia_catalogo) ? ctx.ia_catalogo : [];\n  const propuesta = norm(ia.materia);\n  if (propuesta) {\n    const encontrada = catalogo.find(m => norm(m) === propuesta);\n    if (encontrada) materia = encontrada;\n    else fallo = fallo || 'materia_inventada';\n  }\n\n  // IA-06: misma validacion que la fecha escrita a mano\n  const f = String(ia.fecha == null ? '' : ia.fecha).trim();\n  if (f) {\n    if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(f)) {\n      fallo = fallo || 'fecha_mal_formada';\n    } else {\n      const p = f.split('-').map(Number);\n      const d = new Date(Date.UTC(p[0], p[1] - 1, p[2]));\n      const real = d.getUTCFullYear() === p[0] && d.getUTCMonth() === p[1] - 1 && d.getUTCDate() === p[2];\n      const hoyP = String(cfg.hoy).split('-').map(Number);\n      const dif = (Date.UTC(p[0], p[1] - 1, p[2]) - Date.UTC(hoyP[0], hoyP[1] - 1, hoyP[2])) / 86400000;\n      if (!real) fallo = fallo || 'fecha_inexistente';\n      else if (dif < 0) fallo = fallo || 'fecha_pasada';\n      else if (dif > HORIZONTE) fallo = fallo || 'fecha_fuera_de_horizonte';\n      else fecha = f;\n    }\n  }\n\n  // Algunos modelos devuelven la confianza en porcentaje: se normaliza a 0-1\n  let c = Number(ia.confianza);\n  if (!isNaN(c) && c > 1 && c <= 100) c = c / 100;\n  confianza = isNaN(c) ? 0 : Math.max(0, Math.min(1, c));\n\n  if (confianza < PISO_CONF) {\n    // Ni la intencion es fiable: al menu numerico\n    fallo = fallo || 'confianza_baja';\n    intencion = 'otro'; materia = ''; fecha = '';\n  } else if (confianza < MIN_CONF) {\n    // La intencion sirve para enrutar (el wizard confirma todo despues),\n    // pero no se prellena nada sin confianza suficiente.\n    if (materia || fecha) fallo = fallo || 'confianza_insuficiente_para_prellenar';\n    materia = ''; fecha = '';\n  }\n}\n\n// ---- 4. Traducir la interpretacion a la entrada que habria escrito un humano ----\n// El motor determinista no sabe que existio una IA: recibe exactamente lo mismo.\nconst salida = Object.assign({}, ctx);\nsalida.ia_usada = true;\nsalida.ia_intencion = intencion;\nsalida.ia_materia = materia;\nsalida.ia_fecha = fecha;\nsalida.ia_confianza = confianza;\nsalida.ia_fallo = fallo;\nsalida.ia_texto_original = String(ctx.texto || '').slice(0, 200);\n\nconst catalogo = Array.isArray(ctx.ia_catalogo) ? ctx.ia_catalogo : [];\nconst datosBase = Object.assign({}, ctx.datos || {}, { materias: catalogo });\nlet aviso = '';\n\nif (intencion === 'solicitar' && materia && fecha) {\n  // Entra directo al motor de busqueda con la fecha como si el usuario la hubiera escrito\n  salida.ruta = 'SOLICITAR';\n  salida.submodo = 'fecha';\n  salida.texto = fecha;\n  salida.pantalla_previa = 'SOL_FECHA';\n  salida.datos = Object.assign({}, datosBase, { materia: materia });\n  aviso = 'Entendi: ' + materia + ' para el ' + fecha + '.';\n} else if (intencion === 'solicitar' && materia) {\n  // Se convierte en el numero del menu: mismo camino que el wizard numerico\n  const idx = catalogo.findIndex(m => norm(m) === norm(materia));\n  salida.ruta = 'SOLICITAR';\n  salida.submodo = 'materia';\n  salida.texto = String(idx + 1);\n  salida.pantalla_previa = 'SOL_MATERIA';\n  salida.datos = datosBase;\n  aviso = 'Entendi que necesitas ' + materia + '.';\n} else if (intencion === 'solicitar' && fecha && String(ctx.pantalla_previa) === 'SOL_FECHA') {\n  salida.ruta = 'SOLICITAR';\n  salida.submodo = 'fecha';\n  salida.texto = fecha;\n  aviso = 'Entendi la fecha ' + fecha + '.';\n} else if (intencion === 'solicitar') {\n  salida.ruta = 'SOLICITAR';\n  salida.submodo = 'iniciar';\n  salida.datos = datosBase;\n  aviso = 'Entendi que quieres agendar una asesoria.';\n} else if (intencion === 'consultar') {\n  salida.ruta = 'CONSULTAR'; salida.submodo = 'listar';\n  aviso = 'Entendi que quieres ver tus tutorias.';\n} else if (intencion === 'cancelar') {\n  salida.ruta = 'CANCELAR'; salida.submodo = 'listar';\n  aviso = 'Entendi que quieres cancelar una tutoria.';\n} else if (intencion === 'ayuda') {\n  salida.ruta = 'MENU'; salida.submodo = 'ayuda';\n} else {\n  // IA-08: no se entendio nada utilizable -> el menu numerico de siempre\n  salida.ruta = 'MENU';\n  salida.submodo = ctx.pantalla_previa === 'SOL_MATERIA' ? 'no_reconocido'\n                 : (ctx.pantalla_previa === 'SOL_FECHA' ? 'no_reconocido' : 'no_reconocido');\n  if (ctx.pantalla_previa === 'SOL_MATERIA') { salida.ruta = 'SOLICITAR'; salida.submodo = 'materia'; }\n  if (ctx.pantalla_previa === 'SOL_FECHA')   { salida.ruta = 'SOLICITAR'; salida.submodo = 'fecha'; }\n}\n\nsalida.ia_aviso = aviso;\nreturn [{ json: salida }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1696,
+        1440
+      ],
+      "id": "8dc50a90-4cee-4c2a-a864-ad3b151278ba",
+      "name": "Validar interpretacion IA",
+      "notesInFlow": false,
+      "notes": "Guardarrailes: materia debe existir en el catalogo, fecha debe pasar RN-07, confianza minima. Si algo falla, degrada al menu."
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "4e321a31-0262-43b5-b325-3f49fe208943",
+                    "leftValue": "={{ $json.ruta }}",
+                    "rightValue": "REGISTRO",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "REGISTRO"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "01e029e4-59bf-47bd-8229-adb84571dd51",
+                    "leftValue": "={{ $json.ruta }}",
+                    "rightValue": "MENU",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "MENU"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "c400b2a6-eb50-4a42-abd6-d9c0ce2dad86",
+                    "leftValue": "={{ $json.ruta }}",
+                    "rightValue": "SOLICITAR",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "SOLICITAR"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "703f8bf5-3755-4248-b413-1dfc18516a36",
+                    "leftValue": "={{ $json.ruta }}",
+                    "rightValue": "CONFIRMAR",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "CONFIRMAR"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "081ff23d-4299-4ea1-9de9-3d56630f45fd",
+                    "leftValue": "={{ $json.ruta }}",
+                    "rightValue": "CONSULTAR",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "CONSULTAR"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "eb4eabce-50af-4fde-a15a-b71404020615",
+                    "leftValue": "={{ $json.ruta }}",
+                    "rightValue": "CANCELAR",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "CANCELAR"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "e549ef92-1208-46ca-856e-bdcd261fd358",
+                    "leftValue": "={{ $json.ruta }}",
+                    "rightValue": "TUTOR",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "TUTOR"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "03c5b809-16b2-4527-9b1e-f85df8757bb9",
+                    "leftValue": "={{ $json.ruta }}",
+                    "rightValue": "COORDINACION",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "COORDINACION"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "OTRO"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        1920,
+        1568
+      ],
+      "id": "b403d279-719a-44cb-86ac-480805f25c0f",
+      "name": "Router de modulo",
+      "notes": "Una salida por modulo de negocio. La salida OTRO es la red de seguridad."
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "kz6ekVIbeGVfsZYP",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/kz6ekVIbeGVfsZYP",
+          "cachedResultName": "subworkflow Registro"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        2128,
+        976
+      ],
+      "id": "126f05f9-1e64-4eff-9415-99e146ca1a74",
+      "name": "Modulo REGISTRO",
+      "notes": "Tras importar los sub-workflows, abre este nodo y elige 'TutorBot · Modulo Registro' en la lista."
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "r2zvOxP1LblTce10",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/r2zvOxP1LblTce10",
+          "cachedResultName": "subworkflow Menu"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        2128,
+        1136
+      ],
+      "id": "0cfc5ed0-bf7d-42de-9e2a-fb6fe0cbc5d5",
+      "name": "Modulo MENU",
+      "notes": "Tras importar los sub-workflows, abre este nodo y elige 'TutorBot · Modulo Menu' en la lista."
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "wi1LcJ1ussjVgzJb",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/wi1LcJ1ussjVgzJb",
+          "cachedResultName": "subworkflow Solicitar"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        2128,
+        1296
+      ],
+      "id": "a3de1306-1135-4570-bc64-01f58e5fc3f8",
+      "name": "Modulo SOLICITAR",
+      "notes": "Tras importar los sub-workflows, abre este nodo y elige 'TutorBot · Modulo Solicitar' en la lista."
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "6D0on1UzsOdUcNmU",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/6D0on1UzsOdUcNmU",
+          "cachedResultName": "subworkflow Confirmar"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        2128,
+        1456
+      ],
+      "id": "eae572cd-ef13-4999-b47a-33ef43868116",
+      "name": "Modulo CONFIRMAR",
+      "notes": "Tras importar los sub-workflows, abre este nodo y elige 'TutorBot · Modulo Confirmar' en la lista."
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "H2GuSKh1hUi0kjIo",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/H2GuSKh1hUi0kjIo",
+          "cachedResultName": "subworkflow Consultar"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        2128,
+        1616
+      ],
+      "id": "37ae6d58-4378-4565-8866-0de206649efb",
+      "name": "Modulo CONSULTAR",
+      "notes": "Tras importar los sub-workflows, abre este nodo y elige 'TutorBot · Modulo Consultar' en la lista."
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "Yt9Z5bG6POugYNfh",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/Yt9Z5bG6POugYNfh",
+          "cachedResultName": "subworkflow Cancelar"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        2128,
+        1776
+      ],
+      "id": "37ffb83b-f9f7-454f-873f-b58b2f8507f1",
+      "name": "Modulo CANCELAR",
+      "notes": "Tras importar los sub-workflows, abre este nodo y elige 'TutorBot · Modulo Cancelar' en la lista."
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "N3FpGzfFlICohkiR",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/N3FpGzfFlICohkiR",
+          "cachedResultName": "subworkflow Tutor"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        2128,
+        1936
+      ],
+      "id": "2e0a1750-69e2-4757-950d-3cc5341f598f",
+      "name": "Modulo TUTOR",
+      "notes": "Tras importar los sub-workflows, abre este nodo y elige 'TutorBot · Modulo Tutor' en la lista."
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "uv5vt3azHaxEQxzD",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/uv5vt3azHaxEQxzD",
+          "cachedResultName": "subworkflow coordinacion"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        2128,
+        2096
+      ],
+      "id": "e8a7b0a7-605d-40a1-900b-a72d36a16365",
+      "name": "Modulo COORDINACION",
+      "notes": "Tras importar los sub-workflows, abre este nodo y elige 'TutorBot · Modulo Coordinacion' en la lista."
+    },
+    {
+      "parameters": {
+        "content": "## 1 · ENTRADA Y CONTEXTO\nUn mensaje de Telegram no trae estado: se leen las hojas y se reconstruye en que paso del wizard esta el usuario (FSM sobre la hoja SESSIONS).\n\nSi este Telegram no esta vinculado a ningun estudiante, la primera pantalla pide el codigo de 10 digitos.",
+        "height": 220,
+        "width": 1420,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1056,
+        1328
+      ],
+      "id": "c41dd668-f7d8-482a-acdd-915449cb4e70",
+      "name": "Nota aa5d"
+    },
+    {
+      "parameters": {
+        "content": "## 2 · INTERPRETACION CON IA (Gemini)\nSolo entra el texto libre que NO encaja en el menu numerico.\n\nEl modelo traduce el mensaje a {intencion, materia, fecha, confianza} escogiendo de listas que le damos. No elige tutor, no elige hora, no consulta disponibilidad, no cambia estados.\n\nDos umbrales: con confianza media se acepta la intencion pero NO se prellenan materia ni fecha.",
+        "height": 280,
+        "width": 900,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1008,
+        1824
+      ],
+      "id": "8223392b-7471-43af-99ed-99207303593f",
+      "name": "Nota b772"
+    },
+    {
+      "parameters": {
+        "content": "## 3 · DELEGACION\nUn modulo de negocio = un sub-workflow. Cada uno resuelve su caso completo: lee lo que necesita, decide, escribe, notifica y responde.\n\nIMPORTANTE: importa primero los 7 sub-workflows. Luego abre cada nodo 'Modulo ...' y elige el workflow correspondiente en la lista.",
+        "height": 320,
+        "width": 620,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2048,
+        784
+      ],
+      "id": "b497cdfe-0181-4915-88e8-5457eeb6e801",
+      "name": "Nota caa0"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Leer SESSIONS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer SESSIONS": {
+      "main": [
+        [
+          {
+            "node": "Leer ESTUDIANTES",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer ESTUDIANTES": {
+      "main": [
+        [
+          {
+            "node": "Leer COORDINACION",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer COORDINACION": {
+      "main": [
+        [
+          {
+            "node": "Leer TUTORES",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer TUTORES": {
+      "main": [
+        [
+          {
+            "node": "Leer DISPONIBILIDAD",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer DISPONIBILIDAD": {
+      "main": [
+        [
+          {
+            "node": "Leer TUTORIAS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer TUTORIAS": {
+      "main": [
+        [
+          {
+            "node": "Resolver contexto y ruta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resolver contexto y ruta": {
+      "main": [
+        [
+          {
+            "node": "Preparar consulta IA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar consulta IA": {
+      "main": [
+        [
+          {
+            "node": "Ruta de interpretacion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ruta de interpretacion": {
+      "main": [
+        [
+          {
+            "node": "Interpretar con Gemini",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Router de modulo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Interpretar con Gemini": {
+      "main": [
+        [
+          {
+            "node": "Validar interpretacion IA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validar interpretacion IA": {
+      "main": [
+        [
+          {
+            "node": "Router de modulo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Router de modulo": {
+      "main": [
+        [
+          {
+            "node": "Modulo REGISTRO",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Modulo MENU",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Modulo SOLICITAR",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Modulo CONFIRMAR",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Modulo CONSULTAR",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Modulo CANCELAR",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Modulo TUTOR",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Modulo COORDINACION",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Modulo MENU",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Modelo Gemini (interprete)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Interpretar con Gemini",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "fd0f9067-e192-4251-9bc1-0972a10eaaf2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a3aba055344595d6db99094c1294b4e6ea653f31a6062579d4c17ae82c8cca30"
+  },
+  "nodeGroups": [],
+  "id": "mHZUU89M5UQnexBK",
+  "tags": []
+}
